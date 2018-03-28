@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Naughts and Crosses</title>
+        <style>
+            td {
+                width: 50px;
+                height: 40px;
+                border: 1px solid black;
+                text-align: center;
+            }
+            form {
+                padding-top: 10px;
+            }
+            input {                
+                margin-top: 10px;                
+            }
+            
+            
+        </style>
+    </head>
+    <body>
+        <table>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </table>
+        
+        <form action="/web_server.py" method="post">
+            Position:<br>
+            <input type="text" name="position"><br>
+            <input style="margin-right: 5px;" type="submit" value="Submit">
+            <input type="reset" value=" Reset ">
+        </form>
+        
+    </body>
+</html>
