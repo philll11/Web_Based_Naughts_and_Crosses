@@ -16,52 +16,77 @@
     </head>
     <body>
         <script>
-            /* Creates connection to Server and POSTs client position */
-            function sendXMLData() {                
-                var playerSelection = document.getElementById("inputBox").value
-                /* Input validation */
-                if(10 > playerSelection > 0) {
+            // Creates connection to Server and POSTs client position 
+            function sendXMLPlayerSelection() {                
+                var playerSelection = document.getElementById("inputBox").value;
+                // Input validation 
+                if(10 > playerSelection > 0 && playerSelection != "") {
                     var xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function() {
                         if(this.readyState == 4 && this.status == 200) {
-                            var serverResponse = this.response
-                            /* 
-                                The response is read as a string.
-                                Either this is incorrect or I need to splice the string into a Javascript array
-                            */
-                            console.log(serverResponse)
+                            // Converts json string into array
+                            var serverResponse = JSON.parse(this.response);
+                            // If client input was already selected the server will return False                            
+                            if (serverResponse == "X") {
+                                alert("Client Wins!");
+                            }
+                            else if (serverResponse == "O") {
+                                alert("Server Wins!")
+                            }
+                            else if (serverResponse != 'False') {
+                                // Prints the display
+                                for(i = 1; i <= serverResponse.length; ++i) {
+                                    document.getElementById("td" + i.toString()).innerHTML = serverResponse[i - 1]
+                                }
+                            }
                         }                    
                     }
-                    xhttp.open("POST", "http://localhost:8000/" + playerSelection, true)
-                    xhttp.send()
+                    xhttp.open("POST", "http://localhost:8000/" + playerSelection, true);
+                    xhttp.send();
                 }
                 else {
-                    alert("Please selected a number between 1 and 9")
+                    alert("Please selected a number between 1 and 9");
                 }
+            }
+            // Reset function
+            function sendXMLGameRestart() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if(this.readyState == 3 && this.status == 200) {                       
+                        var serverResponse = JSON.parse(this.response);
+                        for(i = 1; i <= serverResponse.length; ++i) {
+                            document.getElementById("td" + i.toString()).innerHTML = serverResponse[i - 1]
+                        }
+                    }
+                }
+                // 10 is sent to the server to tell the server the reset button has been pressed.
+                // A number is used to prevent a parsing error onthe server side
+                xhttp.open("POST", "http://localhost:8000/10", true);
+                xhttp.send();
             }
         </script>
         
-        <table id="gameBoard">
+        <table>
           <tr>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td id="td1"></td>
+            <td id="td2"></td>
+            <td id="td3"></td>
           </tr>
           <tr>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td id="td4"></td>
+            <td id="td5"></td>
+            <td id="td6"></td>
           </tr>
           <tr>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td id="td7"></td>
+            <td id="td8"></td>
+            <td id="td9"></td>
           </tr>
         </table>
         <div style="margin-top: 10px;">
             <input id="inputBox" type="text" name="position">
-            <button type="button" onclick="sendXMLData()">Submit</button>
-            <button type="button" onclick="">Reset</button>
+            <button type="button" onclick="sendXMLPlayerSelection()">Submit</button>
+            <button type="button" onclick="sendXMLGameRestart()">Reset</button>
         </div>
         
         

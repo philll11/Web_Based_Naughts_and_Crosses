@@ -24,7 +24,7 @@ while 1:
     # Retrieve the message sent by the client
     request = connectionSocket.recv(1024).decode('UTF-8')    
     print(request)
-    
+
     # Unsure if this is the best way to prevent while loop from crashing
     if request != "":
         if request.split()[0] == "GET":
@@ -60,9 +60,11 @@ while 1:
             curl.perform()
             curl.close()
 
-            print(response_buffer.getvalue().decode('UTF-8'))
-            val = "HTTP/1,1 200 OK\n\n" + response_buffer.getvalue().decode('UTF-8')
-            connectionSocket.send(val.encode())
+            # Response send to client
+            response = "HTTP/1,1 200 OK\n\n" + response_buffer.getvalue().decode('UTF-8')
+
+            connectionSocket.send(response.encode())
+
 
     # Close the connection
     connectionSocket.close()
