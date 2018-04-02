@@ -10,18 +10,38 @@
                 border: 1px solid black;
                 text-align: center;
             }
-            form {
-                padding-top: 10px;
-            }
-            input {                
-                margin-top: 10px;                
-            }
             
             
         </style>
     </head>
     <body>
-        <table>
+        <script>
+            /* Creates connection to Server and POSTs client position */
+            function sendXMLData() {                
+                var playerSelection = document.getElementById("inputBox").value
+                /* Input validation */
+                if(10 > playerSelection > 0) {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if(this.readyState == 4 && this.status == 200) {
+                            var serverResponse = this.response
+                            /* 
+                                The response is read as a string.
+                                Either this is incorrect or I need to splice the string into a Javascript array
+                            */
+                            console.log(serverResponse)
+                        }                    
+                    }
+                    xhttp.open("POST", "http://localhost:8000/" + playerSelection, true)
+                    xhttp.send()
+                }
+                else {
+                    alert("Please selected a number between 1 and 9")
+                }
+            }
+        </script>
+        
+        <table id="gameBoard">
           <tr>
             <td></td>
             <td></td>
@@ -38,13 +58,14 @@
             <td></td>
           </tr>
         </table>
+        <div style="margin-top: 10px;">
+            <input id="inputBox" type="text" name="position">
+            <button type="button" onclick="sendXMLData()">Submit</button>
+            <button type="button" onclick="">Reset</button>
+        </div>
         
-        <form action="/web_server.py" method="post">
-            Position:<br>
-            <input type="text" name="position"><br>
-            <input style="margin-right: 5px;" type="submit" value="Submit">
-            <input type="reset" value=" Reset ">
-        </form>
         
+        
+
     </body>
 </html>

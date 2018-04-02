@@ -1,5 +1,7 @@
 from socket import *
+from io import BytesIO
 import os
+import pycurl
 
 # Listening port for the server
 serverPort = 8000
@@ -18,13 +20,14 @@ print('The server is ready to receive messages')
 while 1:
     # Accept a connection from a client
     connectionSocket, addr = serverSocket.accept()
+    
     # Retrieve the message sent by the client
-    request = connectionSocket.recv(1024).decode('UTF-8')
+    request = connectionSocket.recv(1024).decode('UTF-8')    
     print(request)
+    
     # Unsure if this is the best way to prevent while loop from crashing
     if request != "":
         if request.split()[0] == "GET":
-            print(request.split()[0])
             # Extract the  GET requested resource from the path
             getResource = request.split()[1].split("/")[1]
 
@@ -41,8 +44,25 @@ while 1:
 
         elif request.split()[0] == "POST":
             # Extract the POST requested resource from the path
-            postResource = request.split()[1].split("/")[1]
-            print(postResource)
+            # Unsure whether to splice clients choice from request or to send whole request as is
+            # If raw request is concatenated directly to .setopt URL, an illegal character error is thrown
+            clientPosition = request.split()[1].split("/")[1]
+
+            response_buffer = BytesIO()
+
+            curl = pycurl.Curl()
+
+            # Set the curl options which indentify the Google API server, the parameters to be passed to the API,
+            # and buffer to hold the response
+            curl.setopt(curl.URL, 'http://localhost:8080/' + clientPosition)
+            curl.setopt(curl.WRITEFUNCTION, response_buffer.write)
+
+            curl.perform()
+            curl.close()
+
+            print(response_buffer.getvalue().decode('UTF-8'))
+            val = "HTTP/1,1 200 OK\n\n" + response_buffer.getvalue().decode('UTF-8')
+            connectionSocket.send(val.encode())
 
     # Close the connection
     connectionSocket.close()
