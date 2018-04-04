@@ -16,6 +16,22 @@
     </head>
     <body>
         <script>
+            // Reset function
+            function sendXMLGameRestart() {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if(this.readyState == 3 && this.status == 200) {                       
+                        var serverResponse = JSON.parse(this.response);
+                        for(i = 1; i <= serverResponse["boardLayout"].length; ++i) {
+                            document.getElementById("td" + i.toString()).innerHTML = serverResponse["boardLayout"][i - 1]
+                        }
+                    }
+                }
+                // 10 is sent to the server to tell the server the reset button has been pressed.
+                // A number is used to prevent a parsing error onthe server side
+                xhttp.open("POST", "http://localhost:8000/10", true);
+                xhttp.send();
+            }
             // Creates connection to Server and POSTs client position 
             function sendXMLPlayerSelection() {                
                 var playerSelection = document.getElementById("inputBox").value;
@@ -26,19 +42,26 @@
                         if(this.readyState == 4 && this.status == 200) {
                             // Converts json string into array
                             var serverResponse = JSON.parse(this.response);
-                            // If client input was already selected the server will return False                            
-                            if (serverResponse == "X") {
+                            console.log(serverResponse["boardLayout"])                            
+                            // If client input was already selected the server will return False
+                            if (serverResponse["state"] == "X") {
                                 alert("Client Wins!");
+                                sendXMLGameRestart()
                             }
-                            else if (serverResponse == "O") {
+                            else if (serverResponse["state"] == "O") {
                                 alert("Server Wins!")
+                                sendXMLGameRestart()
                             }
-                            else if (serverResponse != 'False') {
+                            else if (serverResponse["state"] == "D") {
+                                alert("Draw!")                                
+                                sendXMLGameRestart()                                
+                            }
+                            else if (serverResponse != 'Error') {
                                 // Prints the display
-                                for(i = 1; i <= serverResponse.length; ++i) {
-                                    document.getElementById("td" + i.toString()).innerHTML = serverResponse[i - 1]
+                                for(i = 1; i <= serverResponse["boardLayout"].length; ++i) {
+                                    document.getElementById("td" + i.toString()).innerHTML = serverResponse["boardLayout"][i - 1]
                                 }
-                            }
+                            }                            
                         }                    
                     }
                     xhttp.open("POST", "http://localhost:8000/" + playerSelection, true);
@@ -47,22 +70,6 @@
                 else {
                     alert("Please selected a number between 1 and 9");
                 }
-            }
-            // Reset function
-            function sendXMLGameRestart() {
-                var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function() {
-                    if(this.readyState == 3 && this.status == 200) {                       
-                        var serverResponse = JSON.parse(this.response);
-                        for(i = 1; i <= serverResponse.length; ++i) {
-                            document.getElementById("td" + i.toString()).innerHTML = serverResponse[i - 1]
-                        }
-                    }
-                }
-                // 10 is sent to the server to tell the server the reset button has been pressed.
-                // A number is used to prevent a parsing error onthe server side
-                xhttp.open("POST", "http://localhost:8000/10", true);
-                xhttp.send();
             }
         </script>
         

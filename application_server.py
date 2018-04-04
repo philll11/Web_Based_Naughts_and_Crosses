@@ -16,15 +16,21 @@ serverSocket.listen(1)
 
 print('The server is ready to receive messages')
 
-# Records what numbers have been selected
-gameBoard = list()
+state = 0
 
 # JSON representation of naughts and crosses board
-jsonStructure = ["", "", "", "", "", "", "", "", ""]
+class Game:
+    boardLayout = []
+    def __init__(self):
+        self.boardLayout = ["", "", "", "", "", "", "", "", ""]
+        self.state = 0
+    def getBoardIndex(self, i):
+        return self.boardLayout[i]
+    def setBoardIdex(self, i, val):
+        self.boardLayout[i] = val
 
 def GameEngine(jStructure):
     # Client Logic
-    print("GameEngine entered")
     if jStructure[0] == "X" and jStructure[1] == "X" and jStructure[2] == "X":
         return "X"
     elif jStructure[3] == "X" and jStructure[4] == "X" and jStructure[5] == "X":
@@ -61,6 +67,7 @@ def GameEngine(jStructure):
     else:
         return ""
 
+myGame = Game()
 while 1:
     # Accept a connection from a client
     connectionSocket, addr = serverSocket.accept()
@@ -68,40 +75,48 @@ while 1:
     request = connectionSocket.recv(1024).decode('UTF-8')
 
     # Slices player choose out of API request
-    clientSelection = int(request.split()[1].split('/')[1])
+    clientSelection = int(request.split()[1].split('/')[1]) - 1
 
     # Checks whether submit or reset button has been pressed
-    if clientSelection == 10:
-        jsonStructure = ["", "", "", "", "", "", "", "", ""]
-        response = json.dumps(jsonStructure)
+    if clientSelection == 9:
+        myGame = Game()
+        response = json.dumps(myGame.__dict__)
     else:
         # Checks whether the clients choose is valid
-        if jsonStructure[clientSelection - 1] == "":
-            jsonStructure[clientSelection - 1] = "X"
-            # Chooses a random square in on the board
-            while 1:
-                serverSelection = randint(0, 8)
-                if jsonStructure[serverSelection] == "":
-                    jsonStructure[serverSelection] = "O"
-                    response = json.dumps(jsonStructure)
-                    # The Web_server is throwing error: "Empty reply from application server"
-                    # Also when a player wins, the jsonStructure array need to be send as the game.html
-                    # still needs to display the clients winning move
-                    winningPlayer = GameEngine(jsonStructure)
-                    if winningPlayer == "X":
-                        response = json.dumps("X")
-                    elif winningPlayer == "O":
-                        response = json.dumps("O")
-                    break
+        if myGame.getBoardIndex(clientSelection) == "":
+            myGame.setBoardIdex(clientSelection, "X")
+            if state != 9:
+                # Chooses a random square in on the board
+                while 1:
+                    serverSelection = randint(0, 8)
+                    if myGame.boardLayout[serverSelection] == "" and serverSelection != clientSelection:
+                        myGame.setBoardIdex(serverSelection, "O")
+                        response = json.dumps(myGame.__dict__)
+                        # Checks whether client or server has wn
+                        winningPlayer = GameEngine(myGame.boardLayout)
+                        # If client wins
+                        if winningPlayer == "X":
+                            myGame.state = "X"
+                            response = json.dumps(myGame.__dict__)
+                        # If server wins
+                        elif winningPlayer == "O":
+                            myGame.state = "O"
+                            response = json.dumps(myGame.__dict__)
+                        break
+            else:
+                myGame.state = "D"
+                response = json.dumps(myGame.__dict__)
+        # Enter only if clients sends invalid selection
         else:
-            response = json.dumps("False")
+            myGame.state = "Error"
+            response = json.dumps(myGame.__dict__)
 
 
 
 
     # Send HTTP response back to the client
     connectionSocket.send(response.encode())
-        
+    state = state + 1
 
 
     # Close the connection

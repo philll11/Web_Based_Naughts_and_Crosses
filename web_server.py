@@ -62,7 +62,7 @@ while 1:
 
             # Response send to client
             response = "HTTP/1,1 200 OK\n\n" + response_buffer.getvalue().decode('UTF-8')
-
+            print(response)
             connectionSocket.send(response.encode())
 
 
