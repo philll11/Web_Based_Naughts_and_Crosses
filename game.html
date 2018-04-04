@@ -41,8 +41,7 @@
                     xhttp.onreadystatechange = function() {
                         if(this.readyState == 4 && this.status == 200) {
                             // Converts json string into array
-                            var serverResponse = JSON.parse(this.response);
-                            console.log(serverResponse["boardLayout"])                            
+                            var serverResponse = JSON.parse(this.response);                        
                             // If client input was already selected the server will return False
                             if (serverResponse["state"] == "X") {
                                 alert("Client Wins!");

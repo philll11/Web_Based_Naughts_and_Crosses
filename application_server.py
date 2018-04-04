@@ -16,6 +16,7 @@ serverSocket.listen(1)
 
 print('The server is ready to receive messages')
 
+# Prevents the client from exceeding the board limit of 9
 state = 0
 
 # JSON representation of naughts and crosses board
@@ -29,6 +30,7 @@ class Game:
     def setBoardIdex(self, i, val):
         self.boardLayout[i] = val
 
+# Computes whether game has been won
 def GameEngine(jStructure):
     # Client Logic
     if jStructure[0] == "X" and jStructure[1] == "X" and jStructure[2] == "X":

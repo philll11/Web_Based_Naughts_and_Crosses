@@ -52,7 +52,7 @@ while 1:
 
             curl = pycurl.Curl()
 
-            # Set the curl options which indentify the Google API server, the parameters to be passed to the API,
+            # Set the curl options which identify the Google API server, the parameters to be passed to the API,
             # and buffer to hold the response
             curl.setopt(curl.URL, 'http://localhost:8080/' + clientPosition)
             curl.setopt(curl.WRITEFUNCTION, response_buffer.write)
@@ -62,7 +62,6 @@ while 1:
 
             # Response send to client
             response = "HTTP/1,1 200 OK\n\n" + response_buffer.getvalue().decode('UTF-8')
-            print(response)
             connectionSocket.send(response.encode())
 
 
