@@ -77,13 +77,14 @@ while 1:
     request = connectionSocket.recv(1024).decode('UTF-8')
 
     # Slices player choose out of API request
-    clientSelection = int(request.split()[1].split('/')[1]) - 1
+    clientSelection = request.split()[1].split('/')[1]
 
     # Checks whether submit or reset button has been pressed
-    if clientSelection == 9:
+    if clientSelection == "restart":
         myGame = Game()
         response = json.dumps(myGame.__dict__)
     else:
+        clientSelection = int(clientSelection) - 1
         # Checks whether the clients choose is valid
         if myGame.getBoardIndex(clientSelection) == "":
             myGame.setBoardIdex(clientSelection, "X")
